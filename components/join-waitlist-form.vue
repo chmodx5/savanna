@@ -28,50 +28,35 @@ const { handleSubmit } = useForm({
 
 const onSubmit = handleSubmit(async (values) => {
     isLoading.value = true;
-    await $fetch("/api/waitlist", {
-        method: "post",
-        body: JSON.stringify({
-            email: values.email,
-        }),
-    })
-        .then()
-        .catch((e) => {
-            console.log("------------------", e);
+
+    try {
+        const response = await $fetch("/api/waitlist", {
+            method: "post",
+            body: JSON.stringify({
+                email: values.email,
+            }),
+        });
+
+        if (response.statusCode != 200) {
+            throw new Error(response.message || "An unknown error occurred");
+        } else {
+            useResetForm();
             toast({
-                variant: "destructive",
+                variant: "default",
                 title: "Success",
                 description: "Email added successfully",
             });
+        }
+    } catch (error: any) {
+        console.error("Error:", error.message);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Error creating form",
         });
-
-    // try {
-    //     const response = await $fetch("/api/waitlist", {
-    //         method: "post",
-    //         body: JSON.stringify({
-    //             email: values.email,
-    //         }),
-    //     });
-
-    //     if (response.statusCode != 200) {
-    //         throw new Error(response.message || "An unknown error occurred");
-    //     } else {
-    //         useResetForm();
-    //         toast({
-    //             variant: "default",
-    //             title: "Success",
-    //             description: "Email added successfully",
-    //         });
-    //     }
-    // } catch (error: any) {
-    //     console.error("Error:", error.message);
-    //     toast({
-    //         variant: "destructive",
-    //         title: "Error",
-    //         description: "Error creating form",
-    //     });
-    // } finally {
-    //     isLoading.value = false;
-    // }
+    } finally {
+        isLoading.value = false;
+    }
 });
 </script>
 
